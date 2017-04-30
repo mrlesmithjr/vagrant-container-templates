@@ -24,7 +24,7 @@ RUN date > /etc/vagrant_box_build_time && \
     'https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub' \
     -O /home/vagrant/.ssh/authorized_keys && \
     chmod 0600 /home/vagrant/.ssh/authorized_keys && \
-    chown -R vagrant /home/vagrant/.ssh
+    chown -R vagrant /home/vagrant
 
 ENV DEBIAN_FRONTEND teletype
 
