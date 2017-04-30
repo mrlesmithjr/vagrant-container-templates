@@ -17,7 +17,7 @@ RUN date > /etc/vagrant_box_build_time && \
     'https://raw.github.com/mitchellh/vagrant/master/keys/vagrant.pub' \
     -O /home/vagrant/.ssh/authorized_keys && \
     chmod 0600 /home/vagrant/.ssh/authorized_keys && \
-    chown -R vagrant /home/vagrant/.ssh
+    chown -R vagrant /home/vagrant
 
 RUN sed -i -e 's/Defaults.*requiretty/#&/' /etc/sudoers && \
     sed -i -e 's/\(UsePAM \)yes/\1 no/' /etc/ssh/sshd_config
