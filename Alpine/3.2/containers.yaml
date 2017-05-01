@@ -1,0 +1,11 @@
+---
+- name: 'container0'
+  ansible_groups:
+    - 'test_nodes'
+  build: true
+  provision: false
+  # port_forwards:
+  #   - guest: '80'
+  #     host: '8080'
+  #   - guest: '443'
+  #     host: '4433'
