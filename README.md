@@ -73,6 +73,79 @@ like:
   #     host: '4433'
 ```
 
+Tips And Tricks
+---------------
+
+- Updating `/etc/hosts` on each container spun up for multi-system testing.
+You may have a need to do some testing with an [Ansible] role which requires
+multiple systems and need name resolution working between containers. There is
+a [Vagrant] plugin called `vagrant-hostmanager` but I did't get the results
+that I was looking for. So I put together this bit of `pre-tasks` in the
+`playbook.yml` which will take care of this for us. Or you can use this for
+additional use cases.
+```
+---
+- hosts: all
+  vars:
+  pre_tasks:
+    - name: Installing Network Related Packages
+      apt:
+        name: "{{ item }}"
+        state: "present"
+      become: true
+      with_items:
+        - 'iputils-ping'
+        - 'net-tools'
+      when: ansible_os_family == "Debian"
+
+# Capturing ip address of eth0 inside container
+    - name: Capturing IP
+      shell: "ifconfig eth0 | grep 'inet addr' | cut -d: -f2 | awk '{print $1}'"
+      register: "_ip_address"
+      become: true
+      changed_when: false
+
+# We use /etc/hosts.tmp to collect our hosts because we cannot directly make
+# changes to /etc/hosts
+    - name: Checking If /etc/hosts.tmp Exists
+      stat:
+        path: "/etc/hosts.tmp"
+      register: "_etc_host_tmp"
+
+    - name: Creating /etc/hosts.tmp If It Does Not Exist
+      file:
+        path: "/etc/hosts.tmp"
+        state: "touch"
+      become: true
+      when: not _etc_host_tmp['stat']['exists']
+
+    - name: Updating /etc/hosts.tmp
+      lineinfile:
+        path: "/etc/hosts.tmp"
+        regexp: "^127.0.0.1"
+        line: "127.0.0.1 localhost"
+      register: "_etc_host_tmp_updated_localhost"
+      become: true
+      with_items: '{{ play_hosts }}'
+
+    - name: Updating /etc/hosts.tmp
+      lineinfile:
+        path: "/etc/hosts.tmp"
+        regexp: "^{{ hostvars[item]['_ip_address']['stdout'] }}"
+        line: "{{ hostvars[item]['_ip_address']['stdout'] }} {{ hostvars[item]['inventory_hostname'] }}"
+      register: "_etc_host_tmp_updated"
+      become: true
+      with_items: '{{ play_hosts }}'
+
+# We do this to overwrite the current /etc/hosts
+    - name: Updating /etc/hosts
+      shell: "cat /etc/hosts.tmp > /etc/hosts"
+      become: true
+      when: >
+            _etc_host_tmp_updated['changed'] or
+            _etc_host_tmp_updated_localhost['changed']
+```
+
 [Ansible]: <https://www.ansible.com>
 [Docker]: <https://www.docker.com>
 [Vagrant]: <https://www.vagrantup.com/>
