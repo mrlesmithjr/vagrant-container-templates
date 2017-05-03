@@ -11,6 +11,9 @@ Requirements
 - [Ansible]
 - [Docker]
 - [Vagrant]
+  - If you **do not have** `v1.9.4` at a minimum installed when you run `vagrant up` [Vagrant] will attempt to load `hashicorp/boot2docker` within [Virtualbox] and will not leverage (native) locally installed [Docker]. When this happens these will not work properly *(at this time)*. After researching this quickly
+  it looks like the *reason/workaround* is related to [this](https://www.vagrantup.com/docs/docker/configuration.html#force_host_vm).
+- [Virtualbox]
 
 Usage
 -----
@@ -150,3 +153,4 @@ additional use cases.
 [Docker]: <https://www.docker.com>
 [Vagrant]: <https://www.vagrantup.com/>
 [Vagrant-Box-Templates]: <https://github.com/mrlesmithjr/vagrant-box-templates>
+[Virtualbox]: <https://www.virtualbox.org/>
