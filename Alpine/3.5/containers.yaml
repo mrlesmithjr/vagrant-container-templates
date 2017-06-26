@@ -3,6 +3,7 @@
   ansible_groups:
     - 'test_nodes'
   build: true
+  # image:
   provision: false
   # port_forwards:
   #   - guest: '80'
