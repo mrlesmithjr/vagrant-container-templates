@@ -1,26 +1,28 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [Vagrant Container Templates](#vagrant-container-templates)
-  - [Purpose](#purpose)
-  - [Requirements](#requirements)
-    - [Software](#software)
-  - [Useful information](#useful-information)
-    - [Docker images](#docker-images)
-  - [Usage](#usage)
-    - [Getting started](#getting-started)
-      - [Clone repo](#clone-repo)
-      - [Choose distro](#choose-distro)
-      - [Customizing environment](#customizing-environment)
-        - [Provisioning](#provisioning)
-        - [Spinning up environment](#spinning-up-environment)
-      - [Tearing down environment](#tearing-down-environment)
-  - [Tips And Tricks](#tips-and-tricks)
-    - [Build images](#build-images)
-    - [`/etc/hosts`](#etchosts)
-  - [License](#license)
-  - [Author Information](#author-information)
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+-   [Vagrant Container Templates](#vagrant-container-templates)
+    -   [Purpose](#purpose)
+    -   [Requirements](#requirements)
+        -   [Software](#software)
+    -   [Useful information](#useful-information)
+        -   [Docker images](#docker-images)
+    -   [Usage](#usage)
+        -   [Getting started](#getting-started)
+            -   [Clone repo](#clone-repo)
+            -   [Choose distro](#choose-distro)
+            -   [Customizing environment](#customizing-environment)
+                -   [Provisioning](#provisioning)
+                -   [Spinning up environment](#spinning-up-environment)
+            -   [Tearing down environment](#tearing-down-environment)
+    -   [Tips And Tricks](#tips-and-tricks)
+        -   [Build images](#build-images)
+        -   [`/etc/hosts`](#etchosts)
+    -   [License](#license)
+    -   [Author Information](#author-information)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -190,15 +192,41 @@ of this for us. Or you can use this for additional use cases.
 - hosts: all
   vars:
   pre_tasks:
-    - name: Installing Network Related Packages
+    - name: Installing Network Related Packages (Alpine)
+      apk:
+        name: "{{ item }}"
+        state: "present"
+        update_cache: true
+      become: true
+      with_items:
+        - 'bind-tools'
+        - 'iproute2'
+        - 'iputils'
+      when: ansible_os_family == "Alpine"
+
+    - name: Installing Network Related Packages (Debian)
       apt:
         name: "{{ item }}"
         state: "present"
       become: true
       with_items:
+        - 'iproute'
         - 'iputils-ping'
         - 'net-tools'
       when: ansible_os_family == "Debian"
+
+    - name: Installing Network Related Packages (RedHat)
+      yum:
+        name: "{{ item }}"
+        state: "present"
+      become: true
+      with_items:
+        - 'iproute'
+        - 'iputils'
+        - 'net-tools'
+      when: >
+            ansible_os_family == "RedHat" and
+            ansible_distribution != "Fedora"
 
 # Capturing ip address of eth0 inside container
     - name: Capturing IP
@@ -246,6 +274,14 @@ of this for us. Or you can use this for additional use cases.
       when: >
             _etc_host_tmp_updated['changed'] or
             _etc_host_tmp_updated_localhost['changed']
+  roles:
+  tasks:
+    - name: Update Apt-Cache
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+      become: true
+      when: ansible_os_family == "Debian"
 ```
 
 ## License
