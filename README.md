@@ -1,58 +1,71 @@
-Purpose
-=======
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-Spin up different OS container types using [Vagrant] and learn [Ansible] at the
-same time if desired. These are based off of the same concepts that I used for
-[Vagrant-Box-Templates].
+- [Vagrant Container Templates](#vagrant-container-templates)
+  - [Purpose](#purpose)
+  - [Requirements](#requirements)
+    - [Software](#software)
+  - [Usage](#usage)
+    - [Getting started](#getting-started)
+      - [Clone repo](#clone-repo)
+      - [Choose distro](#choose-distro)
+      - [Customizing environment](#customizing-environment)
+        - [Provisioning](#provisioning)
+        - [Spinning up environment](#spinning-up-environment)
+      - [Tearing down environment](#tearing-down-environment)
+  - [Tips And Tricks](#tips-and-tricks)
+    - [`/etc/hosts`](#etchosts)
+  - [License](#license)
+  - [Author Information](#author-information)
 
-Requirements
-------------
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-- [Ansible]
-- [Docker]
-- [Vagrant]
-  - If you **do not have** `v1.9.4` at a minimum installed when you run `vagrant up` [Vagrant] will attempt to load `hashicorp/boot2docker` within [Virtualbox] and will not leverage (native) locally installed [Docker]. When this happens these will not work properly *(at this time)*. After researching this quickly
-  it looks like the *reason/workaround* is related to [this](https://www.vagrantup.com/docs/docker/configuration.html#force_host_vm).
-- [Virtualbox]
+# Vagrant Container Templates
 
-Usage
------
+## Purpose
 
-Easily spin up:
+Spin up different OS container types using [Vagrant](https://www.vagrantup.com)
+and learn [Ansible](https://www.ansible.com) at the same time if desired. These
+are based on the same concepts that I used for [Vagrant-Box-Templates](https://github.com/mrlesmithjr/vagrant-box-templates).
 
+## Requirements
+
+### Software
+
+-   [Ansible](https://www.ansible.com)
+-   [Docker](https://www.docker.com)
+-   [Vagrant](https://www.vagrantup.com)
+-   [Virtualbox](https://www.virtualbox.org)
+
+> NOTE: If you **do not have** `v1.9.4` at a minimum installed when you run
+> `vagrant up` [Vagrant](https://www.vagrantup.com) will attempt to load
+> `hashicorp/boot2docker` within [Virtualbox](https://www.virtualbox.org) and
+> will not leverage (native) locally installed [Docker](https://www.docker.com).
+> When this happens these will not work properly _(at this time)_. After
+> researching this quickly it looks like the _reason/workaround_ is related to [this](https://www.vagrantup.com/docs/docker/configuration.html#force_host_vm).
+
+## Usage
+
+### Getting started
+
+#### Clone repo
+
+```bash
+git clone https://github.com/mrlesmithjr/vagrant-container-templates.git
+cd vagrant-container-templates
 ```
-cd Ubuntu/xenial64
-...
-vagrant up
-```
 
-- In each distro you will find a `containers.yaml` file which resembles the below.
-You can modify this to suit your needs.
+#### Choose distro
+
+#### Customizing environment
+
+Each distro folder contains a `containers.yml` file which you can change the number
+of containers to spin up if desired.
 
 `containers.yaml`:
-```
----
-- name: 'container0'
-  ansible_groups:
-    - 'test_nodes'
-  build: true
-  provision: false
-  # port_forwards:
-  #   - guest: '80'
-  #     host: '8080'
-  #   - guest: '443'
-  #     host: '4433'
-```
-- Change `provision: false` to `provision: true` if you would like to test
-[Ansible] related tasks against the specific distro.
 
-- Define `port_forwards` as needed for specific
-testing of apps
-- If you need to spin up additional containers your `containers.yaml` may look
-like:
-
-`containers.yaml`:
-```
+```yaml
 ---
 - name: 'container0'
   ansible_groups:
@@ -76,17 +89,42 @@ like:
   #     host: '4433'
 ```
 
-Tips And Tricks
----------------
+##### Provisioning
 
-- Updating `/etc/hosts` on each container spun up for multi-system testing.
-You may have a need to do some testing with an [Ansible] role which requires
-multiple systems and need name resolution working between containers. There is
-a [Vagrant] plugin called `vagrant-hostmanager` but I did't get the results
-that I was looking for. So I put together this bit of `pre-tasks` in the
-`playbook.yml` which will take care of this for us. Or you can use this for
-additional use cases.
+If you would like to provision the containers when they startup you will need to
+set `provision: true` in the `containers.yml`.
+
+##### Spinning up environment
+
+When you are ready to spin up simply:
+
+```bash
+cd Ubuntu/xenial64
+vagrant up
 ```
+
+#### Tearing down environment
+
+When you are all done with your [Vagrant](https://www.vagrantup.com) environment
+you can quickly and cleanly tear it all down:
+
+```bash
+./cleanup.sh
+```
+
+## Tips And Tricks
+
+### `/etc/hosts`
+
+Updating `/etc/hosts` on each container spun up for multi-system testing. You
+may have a need to do some testing with an [Ansible](https://www.ansible.com)
+role which requires multiple systems and need name resolution working between
+containers. There is a [Vagrant](https://www.vagrantup.com) plugin called
+`vagrant-hostmanager` but I didn't get the results that I was looking for. So I
+put together this bit of `pre-tasks` in the `playbook.yml` which will take care
+of this for us. Or you can use this for additional use cases.
+
+```yaml
 ---
 - hosts: all
   vars:
@@ -149,8 +187,14 @@ additional use cases.
             _etc_host_tmp_updated_localhost['changed']
 ```
 
-[Ansible]: <https://www.ansible.com>
-[Docker]: <https://www.docker.com>
-[Vagrant]: <https://www.vagrantup.com/>
-[Vagrant-Box-Templates]: <https://github.com/mrlesmithjr/vagrant-box-templates>
-[Virtualbox]: <https://www.virtualbox.org/>
+## License
+
+MIT
+
+## Author Information
+
+Larry Smith Jr.
+
+-   [@mrlesmithjr](https://www.twitter.com/mrlesmithjr)
+-   [EverythingShouldBeVirtual](http://everythingshouldbevirtual.com)
+-   mrlesmithjr [at] gmail.com
