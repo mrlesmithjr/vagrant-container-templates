@@ -1,6 +1,6 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
 - [Vagrant Container Templates](#vagrant-container-templates)
   - [Purpose](#purpose)
@@ -15,6 +15,7 @@
         - [Spinning up environment](#spinning-up-environment)
       - [Tearing down environment](#tearing-down-environment)
   - [Tips And Tricks](#tips-and-tricks)
+    - [Build images](#build-images)
     - [`/etc/hosts`](#etchosts)
   - [License](#license)
   - [Author Information](#author-information)
@@ -71,6 +72,7 @@ of containers to spin up if desired.
   ansible_groups:
     - 'test_nodes'
   build: true
+  # image:
   provision: false
   # port_forwards:
   #   - guest: '80'
@@ -81,6 +83,7 @@ of containers to spin up if desired.
   ansible_groups:
     - 'test_nodes'
   build: true
+  # image:
   provision: false
   # port_forwards:
   #   - guest: '80'
@@ -113,6 +116,55 @@ you can quickly and cleanly tear it all down:
 ```
 
 ## Tips And Tricks
+
+### Build images
+
+When spinning up containers the default is to build them each time. Instead of
+doing this you can simply build each distro image that you choose and then change
+`containers.yml` to use the image instead.
+
+For example let's build our custom `Ubuntu Xenial` image:
+
+```bash
+cd Ubuntu/xenial64
+docker build -t localhost/xenial64-vagrant .
+```
+
+Now change `Ubuntu/xenial64/containers.yml` to use this new image:
+
+`From`:
+
+```yaml
+---
+- name: 'container0'
+  ansible_groups:
+    - 'test_nodes'
+  build: true
+  # image:
+  provision: false
+  # port_forwards:
+  #   - guest: '80'
+  #     host: '8080'
+  #   - guest: '443'
+  #     host: '4433'
+```
+
+`To`:
+
+```yaml
+---
+- name: 'container0'
+  ansible_groups:
+    - 'test_nodes'
+  build: false
+  image: localhost/xenial64-vagrant
+  provision: false
+  # port_forwards:
+  #   - guest: '80'
+  #     host: '8080'
+  #   - guest: '443'
+  #     host: '4433'
+```
 
 ### `/etc/hosts`
 
