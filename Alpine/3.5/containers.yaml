@@ -2,8 +2,8 @@
 - name: 'container0'
   ansible_groups:
     - 'test_nodes'
-  build: true
-  # image:
+  build: false
+  image: mrlesmithjr/vagrant-containers:alpine3.5
   provision: false
   # port_forwards:
   #   - guest: '80'

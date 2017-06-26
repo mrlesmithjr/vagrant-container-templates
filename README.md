@@ -6,6 +6,8 @@
   - [Purpose](#purpose)
   - [Requirements](#requirements)
     - [Software](#software)
+  - [Useful information](#useful-information)
+    - [Docker images](#docker-images)
   - [Usage](#usage)
     - [Getting started](#getting-started)
       - [Clone repo](#clone-repo)
@@ -46,6 +48,13 @@ are based on the same concepts that I used for [Vagrant-Box-Templates](https://g
 > When this happens these will not work properly _(at this time)_. After
 > researching this quickly it looks like the _reason/workaround_ is related to [this](https://www.vagrantup.com/docs/docker/configuration.html#force_host_vm).
 
+## Useful information
+
+### Docker images
+
+All of the images for each distro are available on [Docker Hub](https://github.com/mrlesmithjr/vagrant-box-templates) which are the default
+images that are pulled down for each distro when testing with this repo.
+
 ## Usage
 
 ### Getting started
@@ -71,8 +80,8 @@ of containers to spin up if desired.
 - name: 'container0'
   ansible_groups:
     - 'test_nodes'
-  build: true
-  # image:
+  build: false
+  image: mrlesmithjr/vagrant-containers:xenial64
   provision: false
   # port_forwards:
   #   - guest: '80'
@@ -82,8 +91,8 @@ of containers to spin up if desired.
 - name: 'container1'
   ansible_groups:
     - 'test_nodes'
-  build: true
-  # image:
+  build: false
+  image: mrlesmithjr/vagrant-containers:xenial64
   provision: false
   # port_forwards:
   #   - guest: '80'
@@ -139,8 +148,8 @@ Now change `Ubuntu/xenial64/containers.yml` to use this new image:
 - name: 'container0'
   ansible_groups:
     - 'test_nodes'
-  build: true
-  # image:
+  build: false
+  image: mrlesmithjr/vagrant-containers:xenial64
   provision: false
   # port_forwards:
   #   - guest: '80'
