@@ -22,7 +22,7 @@ Vagrant.configure(2) do |config|
   # Define as 0 for counting the number of containers to create from containers.yml
   groups = [] # Define array to hold ansible groups
   num_containers = 0
-  populated_ansible_groups = Hash.new # Create hash to contain iterated groups
+  populated_ansible_groups = {} # Create hash to contain iterated groups
 
   # Create array of Ansible Groups from iterated containers
   containers.each do |container|
@@ -42,9 +42,7 @@ Vagrant.configure(2) do |config|
     containers.each do |container|
       container['ansible_groups'].each do |containergroup|
         # Check if container is a member of iterated group
-        if containergroup == group
-          group_containers.push(container['name'])
-        end
+        group_containers.push(container['name']) if containergroup == group
       end
       populated_ansible_groups[group] = group_containers
     end
@@ -61,31 +59,32 @@ Vagrant.configure(2) do |config|
     #   rsync__exclude: "hosts"
     config.vm.define container_id['name'] do |container|
       container.vm.hostname = container_id['name']
-      container.vm.provider "docker" do |d|
+      container.vm.provider 'docker' do |d|
         if container_id['build']
-          d.build_dir = "."
+          d.build_dir = '.'
           d.has_ssh = true
           d.remains_running = true
         end
-        if not container_id['build']
+        unless container_id['build']
+          d.has_ssh = true
           d.image = container_id['image']
-          d.remains_running = false
+          d.remains_running = true
         end
       end
 
       # Port Forwards
-      if not container_id['port_forwards'].nil?
+      unless container_id['port_forwards'].nil?
         container_id['port_forwards'].each do |pf|
           container.vm.network :forwarded_port, \
-          guest: pf['guest'], \
-          host: pf['host']
+                               guest: pf['guest'], \
+                               host: pf['host']
         end
       end
 
       # Provisioners
-      if not container_id['provision'].nil?
+      unless container_id['provision'].nil?
         if container_id['provision']
-          #runs initial shell script
+          # runs initial shell script
           # config.vm.provision :shell, path: "bootstrap.sh", keep_color: "true"
           if container_id == num_containers
             # container.vm.provision "ansible" do |ansible|
@@ -93,10 +92,10 @@ Vagrant.configure(2) do |config|
             #   #runs bootstrap Ansible playbook
             #   ansible.playbook = "bootstrap.yml"
             # end
-            container.vm.provision "ansible" do |ansible|
-              ansible.limit = "all"
-              #runs Ansible playbook for installing roles/executing tasks
-              ansible.playbook = "playbook.yml"
+            container.vm.provision 'ansible' do |ansible|
+              ansible.limit = 'all'
+              # runs Ansible playbook for installing roles/executing tasks
+              ansible.playbook = 'playbook.yml'
               ansible.groups = ansible_groups
             end
           end
