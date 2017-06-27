@@ -60,16 +60,10 @@ Vagrant.configure(2) do |config|
     config.vm.define container_id['name'] do |container|
       container.vm.hostname = container_id['name']
       container.vm.provider 'docker' do |d|
-        if container_id['build']
-          d.build_dir = '.'
-          d.has_ssh = true
-          d.remains_running = true
-        end
-        unless container_id['build']
-          d.has_ssh = true
-          d.image = container_id['image']
-          d.remains_running = true
-        end
+        d.build_dir = '.' if container_id['build']
+        d.image = container_id['image'] unless container_id['build']
+        d.has_ssh = true
+        d.remains_running = true
       end
 
       # Port Forwards
